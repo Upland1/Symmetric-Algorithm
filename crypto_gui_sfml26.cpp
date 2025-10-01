@@ -59,7 +59,7 @@ std::vector<u64> generar_subclaves(const std::string& clave_maestra, std::vector
 
     {
         VisualStep s;
-        s.title = "Generación subclave 0/1";
+        s.title = "Generacion subclave 0/1";
         s.subclave_hex = to_hex(K0) + " , " + to_hex(K1);
         steps.push_back(s);
     }
@@ -194,29 +194,29 @@ int main() {
     }
 
     // --- textos base ---
-    sf::Text title("CRUX-8 Visual - Introduce clave y texto", font, 20u);
+    sf::Text title("CRUX-8 Visual - Escriba clave y texto", font, 20u);
     title.setPosition(sf::Vector2f(20.f,10.f)); title.setFillColor(sf::Color::White);
 
-    sf::RectangleShape keyBox(sf::Vector2f(520.f,36.f)); keyBox.setPosition(sf::Vector2f(20.f,50.f)); keyBox.setFillColor(sf::Color(40,40,50));
-    sf::RectangleShape textBox(sf::Vector2f(520.f,36.f)); textBox.setPosition(sf::Vector2f(20.f,100.f)); textBox.setFillColor(sf::Color(40,40,50));
-    sf::Text keyLabel("Clave (16 chars):", font, 16u); keyLabel.setPosition(sf::Vector2f(20.f,32.f)); keyLabel.setFillColor(sf::Color(200,200,220));
-    sf::Text textLabel("Texto (<=8 chars):", font, 16u); textLabel.setPosition(sf::Vector2f(20.f,82.f)); textLabel.setFillColor(sf::Color(200,200,220));
+    sf::RectangleShape keyBox(sf::Vector2f(520.f,36.f)); keyBox.setPosition(sf::Vector2f(20.f,55.f)); keyBox.setFillColor(sf::Color(40,40,50));
+    sf::RectangleShape textBox(sf::Vector2f(520.f,36.f)); textBox.setPosition(sf::Vector2f(20.f,115.f)); textBox.setFillColor(sf::Color(40,40,50));
+    sf::Text keyLabel("Clave (16 chars):", font, 16u); keyLabel.setPosition(sf::Vector2f(20.f,35.f)); keyLabel.setFillColor(sf::Color(200,200,220));
+    sf::Text textLabel("Texto (<=8 chars):", font, 16u); textLabel.setPosition(sf::Vector2f(20.f,95.f)); textLabel.setFillColor(sf::Color(200,200,220));
 
     std::string keyInput; keyInput.reserve(32);
     std::string msgInput; msgInput.reserve(128);
     bool inKey = true;
 
-    sf::Text keyText("", font, 18u); keyText.setPosition(sf::Vector2f(28.f,58.f)); keyText.setFillColor(sf::Color::White);
-    sf::Text msgText("", font, 18u); msgText.setPosition(sf::Vector2f(28.f,108.f)); msgText.setFillColor(sf::Color::White);
+    sf::Text keyText("", font, 18u); keyText.setPosition(sf::Vector2f(28.f,63.f)); keyText.setFillColor(sf::Color::White);
+    sf::Text msgText("", font, 18u); msgText.setPosition(sf::Vector2f(28.f,123.f)); msgText.setFillColor(sf::Color::White);
 
     // --- panels ---
-    sf::RectangleShape subkeyPanel(sf::Vector2f(520.f,420.f)); subkeyPanel.setPosition(sf::Vector2f(560.f,50.f)); subkeyPanel.setFillColor(sf::Color(28,28,34));
-    sf::Text subkeyTitle("Subclaves", font, 18u); subkeyTitle.setPosition(sf::Vector2f(560.f,20.f)); subkeyTitle.setFillColor(sf::Color::White);
-    sf::RectangleShape roundPanel(sf::Vector2f(520.f,420.f)); roundPanel.setPosition(sf::Vector2f(20.f,150.f)); roundPanel.setFillColor(sf::Color(22,22,28));
-    sf::Text roundTitle("Estado", font, 18u); roundTitle.setPosition(sf::Vector2f(20.f,120.f)); roundTitle.setFillColor(sf::Color::White);
+    sf::RectangleShape subkeyPanel(sf::Vector2f(520.f,410.f)); subkeyPanel.setPosition(sf::Vector2f(560.f,60.f)); subkeyPanel.setFillColor(sf::Color(28,28,34));
+    sf::Text subkeyTitle("Subclaves", font, 18u); subkeyTitle.setPosition(sf::Vector2f(560.f,35.f)); subkeyTitle.setFillColor(sf::Color::White);
+    sf::RectangleShape roundPanel(sf::Vector2f(520.f,410.f)); roundPanel.setPosition(sf::Vector2f(20.f,170.f)); roundPanel.setFillColor(sf::Color(22,22,28));
+    sf::Text roundTitle("Estado", font, 18u); roundTitle.setPosition(sf::Vector2f(20.f,150.f)); roundTitle.setFillColor(sf::Color::White);
 
     sf::Text hint("ENTER = iniciar | SPACE = siguiente | BACKSPACE = anterior | A = autoplay | ESC = salir", font, 14u);
-    hint.setPosition(sf::Vector2f(20.f,640.f)); hint.setFillColor(sf::Color(180,180,200));
+    hint.setPosition(sf::Vector2f(20.f,650.f)); hint.setFillColor(sf::Color(180,180,200));
 
     // --- datos y pasos ---
     std::vector<VisualStep> steps;
@@ -361,7 +361,7 @@ int main() {
         sf::Text sktext("", font, 16u);
         sktext.setFillColor(sf::Color(220,220,240));
         sktext.setPosition(sf::Vector2f(subkeyPanel.getPosition().x+12.f, subkeyPanel.getPosition().y+10.f));
-        if(!prepared) sktext.setString("Subclaves aparecerán aquí después de ENTER");
+        if(!prepared) sktext.setString("Subclaves apareceran aqui despues de ENTER");
         else {
             std::ostringstream oss;
             for(size_t i=0;i<subclaves.size();i++) oss<<"k["<<i<<"]="<<to_hex(subclaves[i])<<"\n";
@@ -375,8 +375,8 @@ int main() {
         sf::Text sbody("", font, 15u); sbody.setFillColor(sf::Color(200,200,220));
 
         if(!prepared){
-            stitle.setString("Aún no preparado");
-            sbody.setString("Escribe clave (16 chars) y mensaje (<=8 bytes). Presiona ENTER para iniciar.");
+            stitle.setString("Aun no preparado");
+            sbody.setString("Escriba clave (16 chars) y mensaje (<=8 bytes). Presione ENTER para iniciar.");
         } else {
             VisualStep &vs = steps[curStep];
             stitle.setString(vs.title);
@@ -407,7 +407,7 @@ int main() {
 
         // footer
         sf::Text footer(("Paso "+std::to_string(curStep+1)+" / "+std::to_string(prepared?steps.size():0)), font, 14u);
-        footer.setPosition(sf::Vector2f(900.f,660.f)); footer.setFillColor(sf::Color(180,180,200));
+        footer.setPosition(sf::Vector2f(900.f,670.f)); footer.setFillColor(sf::Color(180,180,200));
         window.draw(footer);
 
         window.display();
