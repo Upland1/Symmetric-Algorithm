@@ -1,0 +1,221 @@
+# CRUX-8 Visual - .gitignore
+
+# ===========================
+# Ejecutables y Binarios
+# ===========================
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# ===========================
+# Archivos de Compilación
+# ===========================
+*.o
+*.obj
+*.elf
+*.gch
+*.pch
+
+# ===========================
+# Archivos Temporales
+# ===========================
+*.tmp
+*.temp
+*.log
+*.cache
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ===========================
+# Librerías Externas (SFML)
+# ===========================
+SFML-*/
+*.zip
+openal32.dll
+
+# Mantener solo la estructura, no las librerías descargadas
+# Si quieres incluir SFML en el repo, comenta las líneas de arriba
+
+# ===========================
+# Archivos de Debug/Release
+# ===========================
+debug/
+release/
+build/
+bin/
+obj/
+
+# ===========================
+# IDEs y Editores
+# ===========================
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/c_cpp_properties.json
+
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+
+# Code::Blocks
+*.cbp
+*.layout
+*.depend
+
+# Dev-C++
+*.dev
+
+# CLion
+.idea/
+cmake-build-*/
+
+# Qt Creator
+*.pro.user
+*.pro.user.*
+
+# ===========================
+# Compiladores y Tools
+# ===========================
+
+# GCC
+*.d
+
+# MinGW
+*.stackdump
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Make
+*.make
+*.mk
+
+# ===========================
+# Archivos de Distribución
+# ===========================
+*-Distribucion/
+*.zip
+!SFML-*.zip  # Si quieres mantener el ZIP original de SFML
+
+# ===========================
+# Archivos de Prueba
+# ===========================
+test_*
+*_test
+temp_*
+
+# ===========================
+# Sistema Operativo
+# ===========================
+
+# Windows
+*.lnk
+*.ini
+desktop.ini
+ehthumbs.db
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ===========================
+# Documentación Generada
+# ===========================
+doc/html/
+doc/latex/
+*.pdf
+!README.pdf  # Si tienes un README en PDF que quieres mantener
+
+# ===========================
+# Archivos de Configuración Local
+# ===========================
+config.local.*
+settings.local.*
+.env.local
+
+# ===========================
+# Archivos de Backup
+# ===========================
+*.bak
+*.backup
+*.orig
+*.rej
+
+# ===========================
+# Específico del Proyecto CRUX-8
+# ===========================
+
+# Archivos de prueba temporales
+test_*.cpp
+test_*.exe
+*_temp.*
+
+# Logs del programa
+*.log
+output.txt
+
+# Archivos de fuentes temporales
+*.ttf
+*.otf
+!fonts/*.ttf  # Si tienes una carpeta fonts/ que quieres mantener
+
+# ===========================
+# Git
+# ===========================
+*.orig
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+
+# ===========================
+# Archivos que SÍ queremos mantener
+# ===========================
+# (usar ! para negar el ignore)
+
+# Código fuente principal
+!crypto_gui_sfml26.cpp
+!*.h
+!*.hpp
+
+# Documentación
+!README.md
+!MANUAL_USUARIO.md
+!INSTALACION_COMPLETA.md
+!TROUBLESHOOTING.md
+!ESPECIFICACION_TECNICA.md
+
+# Scripts de utilidad
+!crear_distribucion.ps1
+!*.bat
+!*.sh
+
+# Configuración de VS Code que queremos compartir
+!.vscode/c_cpp_properties.json
+!.vscode/tasks.json
+!.vscode/launch.json
