@@ -200,7 +200,7 @@ int main() {
     sf::RectangleShape keyBox(sf::Vector2f(520.f,36.f)); keyBox.setPosition(sf::Vector2f(20.f,55.f)); keyBox.setFillColor(sf::Color(40,40,50));
     sf::RectangleShape textBox(sf::Vector2f(520.f,36.f)); textBox.setPosition(sf::Vector2f(20.f,115.f)); textBox.setFillColor(sf::Color(40,40,50));
     sf::Text keyLabel("Clave (16 chars):", font, 16u); keyLabel.setPosition(sf::Vector2f(20.f,35.f)); keyLabel.setFillColor(sf::Color(200,200,220));
-    sf::Text textLabel("Texto (<=8 chars):", font, 16u); textLabel.setPosition(sf::Vector2f(20.f,95.f)); textLabel.setFillColor(sf::Color(200,200,220));
+    sf::Text textLabel("Texto (cualquier tamanio):", font, 16u); textLabel.setPosition(sf::Vector2f(20.f,95.f)); textLabel.setFillColor(sf::Color(200,200,220));
 
     std::string keyInput; keyInput.reserve(32);
     std::string msgInput; msgInput.reserve(128);
@@ -256,52 +256,96 @@ int main() {
                 // Enter -> prepare / run
                 else if (code == sf::Keyboard::Enter) {
                     // --- lógica de cifrado/descifrado ---
-                    if(keyInput.size()==16 && msgInput.size()<=8){
+                    if(keyInput.size()==16 && msgInput.size()>0){
                         steps.clear();
                         subclaves = generar_subclaves(keyInput,steps);
 
-                        char buf[8]; std::memset(buf,0,8);
-                        std::memcpy(buf,msgInput.data(),msgInput.size());
-                        block = *reinterpret_cast<u64*>(buf);
-
-                        VisualStep s; s.title="Bloque inicial"; s.before_hex=to_hex(block);
-                        // insert after generation info (preserve initial gen step at index 0)
-                        steps.insert(steps.begin()+1,s);
-
-                        // cifrado
-                        u64 cur = block;
-                        for(int r=0;r<8;r++){
-                            VisualStep vs = build_round_visual(cur,subclaves[r],r,true);
-                            steps.push_back(vs);
-                            u64 C1 = cur^subclaves[r];
-                            int d = subclaves[r]&0x3FUL;
-                            u64 L = C1 & 0xFFFFFFFF00000000ULL;
-                            u64 R = C1 & 0x00000000FFFFFFFFULL;
-                            u64 Ld = ROL(L,d);
-                            u64 Rd = ROR(R,64-d);
-                            u64 D1 = Ld|Rd;
-                            cur = D1+subclaves[r];
+                        // Dividir texto en bloques de 8 bytes
+                        std::vector<u64> bloques;
+                        std::vector<u64> cifrados;
+                        
+                        for(size_t i = 0; i < msgInput.size(); i += 8) {
+                            char buf[8]; std::memset(buf, 0, 8);
+                            size_t blockSize = std::min((size_t)8, msgInput.size() - i);
+                            std::memcpy(buf, msgInput.data() + i, blockSize);
+                            bloques.push_back(*reinterpret_cast<u64*>(buf));
                         }
-                        s.title="Resultado cifrado"; s.out_hex=to_hex(cur); steps.push_back(s);
 
-                        // descifrado
-                        u64 curd = cur;
-                        steps.push_back(VisualStep{"--- Inicia descifrado ---","","","","","","","","",""});
-                        for(int r=7;r>=0;r--){
-                            VisualStep vs = build_round_visual(curd,subclaves[r],r,false);
-                            steps.push_back(vs);
-                            u64 D1 = curd - subclaves[r];
-                            int d = subclaves[r]&0x3FUL;
-                            u64 Ld = D1 & 0xFFFFFFFF00000000ULL;
-                            u64 Rd = D1 & 0x00000000FFFFFFFFULL;
-                            u64 L = ROR(Ld,d);
-                            u64 R = ROL(Rd,64-d);
-                            curd = (L|R) ^ subclaves[r];
+                        // Mostrar bloques iniciales
+                        for(size_t b = 0; b < bloques.size(); b++) {
+                            VisualStep s; 
+                            s.title = "Bloque " + std::to_string(b+1) + " inicial"; 
+                            s.before_hex = to_hex(bloques[b]);
+                            steps.push_back(s);
                         }
-                        s.title="Resultado descifrado"; s.out_hex=to_hex(curd); s.plaintext=u64_to_plain(curd); steps.push_back(s);
+
+                        // Cifrar cada bloque
+                        for(size_t b = 0; b < bloques.size(); b++) {
+                            u64 cur = bloques[b];
+                            
+                            steps.push_back(VisualStep{"=== Cifrando bloque " + std::to_string(b+1) + " ===","","","","","","","","",""});
+                            
+                            for(int r=0;r<8;r++){
+                                VisualStep vs = build_round_visual(cur,subclaves[r],r,true);
+                                vs.title = "Bloque " + std::to_string(b+1) + " - " + vs.title;
+                                steps.push_back(vs);
+                                u64 C1 = cur^subclaves[r];
+                                int d = subclaves[r]&0x3FUL;
+                                u64 L = C1 & 0xFFFFFFFF00000000ULL;
+                                u64 R = C1 & 0x00000000FFFFFFFFULL;
+                                u64 Ld = ROL(L,d);
+                                u64 Rd = ROR(R,64-d);
+                                u64 D1 = Ld|Rd;
+                                cur = D1+subclaves[r];
+                            }
+                            cifrados.push_back(cur);
+                            
+                            VisualStep s;
+                            s.title = "Bloque " + std::to_string(b+1) + " cifrado"; 
+                            s.out_hex = to_hex(cur); 
+                            steps.push_back(s);
+                        }
+
+                        // Descifrar todos los bloques
+                        std::string textoCompleto;
+                        steps.push_back(VisualStep{"=== Iniciando descifrado completo ===","","","","","","","","",""});
+                        
+                        for(size_t b = 0; b < cifrados.size(); b++) {
+                            u64 curd = cifrados[b];
+                            
+                            steps.push_back(VisualStep{"=== Descifrando bloque " + std::to_string(b+1) + " ===","","","","","","","","",""});
+                            
+                            for(int r=7;r>=0;r--){
+                                VisualStep vs = build_round_visual(curd,subclaves[r],r,false);
+                                vs.title = "Bloque " + std::to_string(b+1) + " - " + vs.title;
+                                steps.push_back(vs);
+                                u64 D1 = curd - subclaves[r];
+                                int d = subclaves[r]&0x3FUL;
+                                u64 Ld = D1 & 0xFFFFFFFF00000000ULL;
+                                u64 Rd = D1 & 0x00000000FFFFFFFFULL;
+                                u64 L = ROR(Ld,d);
+                                u64 R = ROL(Rd,64-d);
+                                curd = (L|R) ^ subclaves[r];
+                            }
+                            
+                            std::string bloqueTexto = u64_to_plain(curd);
+                            textoCompleto += bloqueTexto;
+                            
+                            VisualStep s;
+                            s.title = "Bloque " + std::to_string(b+1) + " descifrado"; 
+                            s.out_hex = to_hex(curd); 
+                            s.plaintext = bloqueTexto;
+                            steps.push_back(s);
+                        }
+                        
+                        // Resultado final
+                        VisualStep final;
+                        final.title = "Texto completo descifrado";
+                        final.plaintext = textoCompleto;
+                        steps.push_back(final);
 
                         prepared=true; playing=false; curStep=0; scrollOffset=0.f;
-                    } else std::cerr << "Clave debe ser 16 chars y texto <=8 bytes.\n";
+                    } else std::cerr << "Clave debe ser 16 chars y texto no vacio.\n";
                 }
                 // Space -> siguiente (si preparado)
                 else if (code == sf::Keyboard::Space && prepared && curStep < (int)steps.size()-1) {
@@ -333,7 +377,7 @@ int main() {
                     if (unicode >= 32 && unicode <= 126) {
                         char c = static_cast<char>(unicode);
                         if (inKey && keyInput.size()<16) keyInput.push_back(c);
-                        else if (!inKey && msgInput.size()<8) msgInput.push_back(c);
+                        else if (!inKey && msgInput.size()<256) msgInput.push_back(c);
                     }
                 }
             }
@@ -376,7 +420,7 @@ int main() {
 
         if(!prepared){
             stitle.setString("Aun no preparado");
-            sbody.setString("Escriba clave (16 chars) y mensaje (<=8 bytes). Presione ENTER para iniciar.");
+            sbody.setString("Escriba clave (16 chars) y mensaje (cualquier tamanio). Presione ENTER para iniciar.");
         } else {
             VisualStep &vs = steps[curStep];
             stitle.setString(vs.title);
